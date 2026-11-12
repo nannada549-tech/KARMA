@@ -1,0 +1,136 @@
+:root {
+  --bg: #0a0a0a;
+  --panel: #121212;
+  --line: #2a2418;
+  --gold: #c9a24b;
+  --gold-soft: #e8d08a;
+  --text: #e9e4d8;
+  --muted: #8d8676;
+  --serif: "Cormorant Garamond", "Noto Serif KR", serif;
+  --sans: "Noto Sans KR", sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { background: var(--bg); }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-weight: 300;
+  -webkit-font-smoothing: antialiased;
+}
+body.locked { overflow: hidden; }
+a { color: inherit; text-decoration: none; }
+
+/* 이미지 자리표시 (이미지가 없을 때도 예쁘게) */
+.ph {
+  position: relative; overflow: hidden;
+  background: linear-gradient(135deg, #1b1608, #0d0d0d 60%, #1f1a0c);
+  display: flex; align-items: center; justify-content: center;
+}
+.ph::after {
+  content: attr(data-label);
+  font-family: var(--serif); font-size: 2.4rem; color: var(--gold); opacity: .45;
+}
+.ph img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
+
+/* ───────── 입장 화면 ───────── */
+#intro { position: fixed; inset: 0; z-index: 50; background: #000; cursor: pointer; }
+#intro .bar {
+  position: absolute; left: 0; right: 0; background: #000; z-index: 3;
+  height: 50vh; transition: height 1.6s cubic-bezier(.7,0,.2,1);
+}
+#intro .bar.top { top: 0; border-bottom: 1px solid var(--gold); }
+#intro .bar.bottom {
+  bottom: 0; border-top: 1px solid var(--gold);
+  display: flex; align-items: center; justify-content: center; padding: 0 6vw;
+}
+#intro.open .bar { height: 17vh; }
+#intro .stage { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+#introImg {
+  width: min(94vw, 88vh); aspect-ratio: 1216 / 832;
+  opacity: 0; transition: opacity 2s ease .8s;
+}
+#intro.open #introImg { opacity: 1; }
+#subtitle {
+  font-family: var(--serif); font-size: clamp(.95rem, 2.4vw, 1.35rem);
+  color: var(--gold-soft); letter-spacing: .04em; text-align: center; line-height: 1.7;
+  min-height: 1.7em; transition: opacity .8s; opacity: 0;
+}
+#subtitle.show { opacity: 1; }
+#intro .hint {
+  position: absolute; left: 0; right: 0; bottom: calc(17vh + 14px); text-align: center; z-index: 2;
+  font-size: .65rem; letter-spacing: .4em; text-transform: uppercase; color: var(--muted);
+  animation: blink 2.4s infinite;
+}
+@keyframes blink { 50% { opacity: .2; } }
+
+#wipe {
+  position: fixed; inset: 0; z-index: 60; background: #000; pointer-events: none;
+  transform: scaleX(0); transform-origin: left; transition: transform .85s cubic-bezier(.7,0,.2,1);
+}
+#wipe.in { transform: scaleX(1); }
+
+/* ───────── 공통 ───────── */
+#app { max-width: 880px; margin: 0 auto; padding: 56px 20px 96px; animation: fade .6s ease; }
+@keyframes fade { from { opacity: 0; transform: translateY(8px); } }
+
+.head { text-align: center; margin-bottom: 56px; }
+.head h1 {
+  font-family: var(--serif); font-weight: 500; font-size: clamp(2.2rem, 7vw, 3.4rem);
+  letter-spacing: .32em; color: var(--gold); padding-left: .32em;
+}
+.head p { margin-top: 10px; font-size: .7rem; letter-spacing: .45em; text-transform: uppercase; color: var(--muted); }
+.head::after { content: ""; display: block; width: 48px; height: 1px; background: var(--gold); margin: 26px auto 0; }
+
+/* ───────── 페어 목록 (세로) ───────── */
+.list { display: flex; flex-direction: column; gap: 18px; }
+.pair {
+  display: flex; align-items: stretch; background: var(--panel);
+  border: 1px solid var(--line); transition: border-color .3s, transform .3s;
+}
+.pair:hover { border-color: var(--gold); transform: translateY(-2px); }
+.pair .ph { width: 38%; min-height: 150px; flex-shrink: 0; }
+.pair .info { flex: 1; padding: 24px 26px; display: flex; flex-direction: column; justify-content: center; gap: 8px; min-width: 0; }
+.pair .no { font-family: var(--serif); font-size: .85rem; letter-spacing: .3em; color: var(--gold); }
+.pair .nm { font-family: var(--serif); font-size: clamp(1.4rem, 4.6vw, 2rem); font-weight: 500; }
+.pair .sb { font-size: .82rem; color: var(--muted); }
+.pair .arrow { margin-top: 8px; font-size: .65rem; letter-spacing: .3em; color: var(--gold); opacity: 0; transition: opacity .3s; }
+.pair:hover .arrow { opacity: 1; }
+
+/* ───────── 페어 페이지 ───────── */
+.back { display: inline-block; margin-bottom: 36px; font-size: .68rem; letter-spacing: .35em; color: var(--muted); text-transform: uppercase; }
+.back:hover { color: var(--gold); }
+.chars { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.char {
+  background: var(--panel); border: 1px solid var(--line); cursor: pointer;
+  transition: border-color .3s, transform .3s; display: flex; flex-direction: column;
+}
+.char:hover { border-color: var(--gold); transform: translateY(-2px); }
+.char .ph { width: 100%; aspect-ratio: 3 / 4; }
+.char .body { padding: 20px 20px 22px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
+.char .nm { font-family: var(--serif); font-size: 1.5rem; font-weight: 500; }
+.char .pv {
+  font-size: .78rem; color: var(--muted); line-height: 1.7; white-space: pre-wrap;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+.char .copy {
+  margin-top: auto; padding-top: 6px; font-size: .65rem; letter-spacing: .35em; color: var(--gold);
+  text-transform: uppercase;
+}
+.empty { text-align: center; color: var(--muted); padding: 60px 0; font-size: .85rem; }
+
+/* 토스트 */
+#toast {
+  position: fixed; left: 50%; bottom: 36px; transform: translate(-50%, 20px);
+  background: var(--gold); color: #0a0a0a; font-size: .78rem; font-weight: 500; letter-spacing: .08em;
+  padding: 11px 22px; opacity: 0; pointer-events: none; transition: .3s; z-index: 70;
+}
+#toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+@media (max-width: 560px) {
+  #app { padding-top: 40px; }
+  .pair { flex-direction: column; }
+  .pair .ph { width: 100%; aspect-ratio: 16 / 10; }
+  .chars { grid-template-columns: 1fr; }
+  .char .ph { aspect-ratio: 4 / 5; }
+}
