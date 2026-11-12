@@ -1,5 +1,5 @@
 (() => {
-  const { SITE, PAIRS } = window.DATA;
+  const { SITE, CHARACTERS: CHARS } = window.DATA;
   const app = document.getElementById("app");
   const toast = document.getElementById("toast");
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -53,61 +53,116 @@
     showToast(`${name} 프롬프트를 복사했어요`);
   }
 
-  /* ───────── 화면 그리기 ───────── */
+  /* ───────── 캐릭터 목록 (세로) ───────── */
+  let viaClick = false; // 카드를 눌러서 연 상태인지 (닫을 때 뒤로가기로 처리)
+
   function renderList() {
     app.replaceChildren();
     const head = el("div", "head");
     head.append(el("h1", null, SITE.title), el("p", null, SITE.subtitle));
     const list = el("div", "list");
 
-    PAIRS.forEach((p, i) => {
-      const a = el("a", "pair");
-      a.href = `#/pair/${p.id}`;
+    CHARS.forEach((c, i) => {
+      const a = el("a", "card");
+      a.href = `#/${encodeURIComponent(c.id)}`;
+      a.addEventListener("click", () => { viaClick = true; });
       const info = el("div", "info");
       info.append(
         el("span", "no", String(i + 1).padStart(2, "0")),
-        el("span", "nm", p.name),
-        el("span", "sb", p.subtitle || ""),
-        el("span", "arrow", "OPEN →")
+        el("span", "nm", c.name),
+        el("span", "sb", c.subtitle || ""),
+        el("span", "arrow", "STATUS →")
       );
-      a.append(photo(p.image, p.name), info);
+      a.append(photo(c.image, c.name), info);
       list.appendChild(a);
     });
 
-    if (!PAIRS.length) list.appendChild(el("div", "empty", "아직 등록된 페어가 없어요."));
+    if (!CHARS.length) list.appendChild(el("div", "empty", "아직 등록된 캐릭터가 없어요."));
     app.append(head, list);
-    window.scrollTo(0, 0);
   }
 
-  function renderPair(id) {
-    const p = PAIRS.find((x) => x.id === id);
-    if (!p) { location.hash = "#/"; return; }
-    app.replaceChildren();
+  /* ───────── 상태창 ───────── */
+  const panel = el("div", "panel");
+  const dialog = el("div", "dialog");
+  const closeBtn = el("button", "close", "×");
+  closeBtn.type = "button";
+  closeBtn.setAttribute("aria-label", "닫기");
+  const content = el("div", "content");
+  dialog.append(closeBtn, content);
+  panel.appendChild(dialog);
+  document.body.appendChild(panel);
 
-    const back = el("a", "back", "← Back");
-    back.href = "#/";
-    const head = el("div", "head");
-    head.append(el("h1", null, p.name), el("p", null, p.subtitle || ""));
-    const grid = el("div", "chars");
+  function closeFromUI() {
+    if (viaClick) {
+      viaClick = false;
+      history.back();                    // 열 때 쌓인 기록을 되돌려요
+    } else {
+      history.replaceState(null, "", location.pathname + location.search);
+      route();
+    }
+  }
+  closeBtn.addEventListener("click", closeFromUI);
+  panel.addEventListener("click", (e) => { if (e.target === panel) closeFromUI(); });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && panel.classList.contains("open")) closeFromUI();
+  });
 
-    p.characters.forEach((c) => {
-      const card = el("div", "char");
-      const body = el("div", "body");
-      body.append(el("div", "nm", c.name), el("div", "pv", c.prompt), el("div", "copy", "Click to copy"));
-      card.append(photo(c.image, c.name), body);
-      card.addEventListener("click", () => copy(c.prompt, c.name));
-      grid.appendChild(card);
+  function fillPanel(c) {
+    const pic = photo(c.image, c.name);
+    pic.classList.add("pic");
+
+    const side = el("div", "side");
+    side.append(el("div", "tag", "STATUS"), el("h2", "nm", c.name));
+    if (c.subtitle) side.appendChild(el("p", "sb", c.subtitle));
+
+    if (c.info && c.info.length) {
+      const dl = el("dl", "stats");
+      c.info.forEach(([k, v]) => {
+        const row = el("div", "row");
+        row.append(el("dt", null, k), el("dd", null, v));
+        dl.appendChild(row);
+      });
+      side.appendChild(dl);
+    }
+    if (c.intro) side.appendChild(el("p", "intro", c.intro));
+
+    const btn = el("button", "copybtn", "프롬프트 복사");
+    btn.type = "button";
+    let t;
+    btn.addEventListener("click", async () => {
+      await copy(c.prompt, c.name);
+      btn.textContent = "복사됨 ✓";
+      btn.classList.add("done");
+      clearTimeout(t);
+      t = setTimeout(() => {
+        btn.textContent = "프롬프트 복사";
+        btn.classList.remove("done");
+      }, 1600);
     });
+    side.appendChild(btn);
 
-    app.append(back, head, grid);
-    window.scrollTo(0, 0);
+    content.replaceChildren(pic, side);
+  }
+
+  function openPanel(c) {
+    fillPanel(c);
+    dialog.scrollTop = 0;
+    panel.classList.add("open");
+    document.body.classList.add("modal-open");
+  }
+  function hidePanel() {
+    panel.classList.remove("open");
+    document.body.classList.remove("modal-open");
   }
 
   function route() {
-    const m = location.hash.match(/^#\/pair\/(.+)$/);
-    m ? renderPair(decodeURIComponent(m[1])) : renderList();
+    const m = location.hash.match(/^#\/(.+)$/);
+    const c = m && CHARS.find((x) => x.id === decodeURIComponent(m[1]));
+    c ? openPanel(c) : hidePanel();
   }
+
   window.addEventListener("hashchange", route);
+  renderList();
   route();
 
   /* ───────── 입장 화면 ───────── */

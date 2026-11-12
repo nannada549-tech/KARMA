@@ -5,31 +5,28 @@
 - `index.html` 뼈대
 - `style.css` 디자인 (색은 맨 위 `:root`에서 바꿔요)
 - `app.js` 동작 (건드릴 일 없음)
-- `data.js` **내용 전부** — 페어, 캐릭터, 프롬프트, 입장 대사
-- `images/` 사진 넣는 폴더 (직접 만들어서 올려주세요)
+- `data.js` **내용 전부** — 캐릭터, 소개, 프롬프트, 입장 대사
+- `images/` 사진 폴더
 
-## 올리는 법 (GitHub Pages)
+## 화면 구성
 
-1. GitHub에서 새 저장소(repository) 만들기 — 공개(Public)로
-2. 이 폴더의 파일들을 전부 업로드 (`Add file → Upload files`)
-3. `images` 폴더도 만들어서 사진 업로드
-4. 저장소 `Settings → Pages` → Branch를 `main`, 폴더는 `/ (root)` → Save
-5. 1~2분 뒤 `https://내아이디.github.io/저장소이름/` 로 접속
+1. 입장 화면: 영화 같은 검은 띠 + 사진 + 대사
+2. 첫 화면: 캐릭터가 세로로 나열
+3. 캐릭터를 누르면 상태창: 옆에 사진, 소개, `프롬프트 복사` 버튼
 
-## 페어 추가하는 법
+## 캐릭터 추가하는 법
 
-GitHub에서 `data.js`를 열고 연필 아이콘(Edit)을 눌러서 `PAIRS` 안에 아래 덩어리를 복사해 붙이면 끝이에요.
+GitHub에서 `data.js`를 열고 연필 아이콘(Edit)을 눌러서 `CHARACTERS` 안에 아래 덩어리를 복사해 붙이면 끝이에요.
 
 ```js
 {
-  id: "pair-03",            // 겹치지 않는 영어/숫자
-  name: "E × F",
+  id: "c",                    // 겹치지 않는 영어/숫자
+  name: "C",
   subtitle: "한 줄 소개",
-  image: "images/pair-03.jpg",
-  characters: [
-    { name: "E", image: "images/pair-03-e.jpg", prompt: `프롬프트` },
-    { name: "F", image: "images/pair-03-f.jpg", prompt: `프롬프트` }
-  ]
+  image: "images/c.jpg",
+  info: [["나이", "00"], ["직업", "—"]],   // 상태 항목 (없어도 돼요)
+  intro: `간단한 소개`,                     // 없어도 돼요
+  prompt: `프롬프트`
 },
 ```
 

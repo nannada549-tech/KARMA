@@ -18,7 +18,7 @@ body {
   font-weight: 300;
   -webkit-font-smoothing: antialiased;
 }
-body.locked { overflow: hidden; }
+body.locked, body.modal-open { overflow: hidden; }
 a { color: inherit; text-decoration: none; }
 
 /* 이미지 자리표시 (이미지가 없을 때도 예쁘게) */
@@ -89,42 +89,58 @@ a { color: inherit; text-decoration: none; }
 .head p { margin-top: 10px; font-size: .7rem; letter-spacing: .45em; text-transform: uppercase; color: var(--muted); }
 .head::after { content: ""; display: block; width: 48px; height: 1px; background: var(--gold); margin: 26px auto 0; }
 
-/* ───────── 페어 목록 (세로) ───────── */
+/* ───────── 캐릭터 목록 (세로) ───────── */
 .list { display: flex; flex-direction: column; gap: 18px; }
-.pair {
+.card {
   display: flex; align-items: stretch; background: var(--panel);
   border: 1px solid var(--line); transition: border-color .3s, transform .3s;
 }
-.pair:hover { border-color: var(--gold); transform: translateY(-2px); }
-.pair .ph { width: 38%; min-height: 150px; flex-shrink: 0; }
-.pair .info { flex: 1; padding: 24px 26px; display: flex; flex-direction: column; justify-content: center; gap: 8px; min-width: 0; }
-.pair .no { font-family: var(--serif); font-size: .85rem; letter-spacing: .3em; color: var(--gold); }
-.pair .nm { font-family: var(--serif); font-size: clamp(1.4rem, 4.6vw, 2rem); font-weight: 500; }
-.pair .sb { font-size: .82rem; color: var(--muted); }
-.pair .arrow { margin-top: 8px; font-size: .65rem; letter-spacing: .3em; color: var(--gold); opacity: 0; transition: opacity .3s; }
-.pair:hover .arrow { opacity: 1; }
-
-/* ───────── 페어 페이지 ───────── */
-.back { display: inline-block; margin-bottom: 36px; font-size: .68rem; letter-spacing: .35em; color: var(--muted); text-transform: uppercase; }
-.back:hover { color: var(--gold); }
-.chars { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
-.char {
-  background: var(--panel); border: 1px solid var(--line); cursor: pointer;
-  transition: border-color .3s, transform .3s; display: flex; flex-direction: column;
-}
-.char:hover { border-color: var(--gold); transform: translateY(-2px); }
-.char .ph { width: 100%; aspect-ratio: 3 / 4; }
-.char .body { padding: 20px 20px 22px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
-.char .nm { font-family: var(--serif); font-size: 1.5rem; font-weight: 500; }
-.char .pv {
-  font-size: .78rem; color: var(--muted); line-height: 1.7; white-space: pre-wrap;
-  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
-}
-.char .copy {
-  margin-top: auto; padding-top: 6px; font-size: .65rem; letter-spacing: .35em; color: var(--gold);
-  text-transform: uppercase;
-}
+.card:hover { border-color: var(--gold); transform: translateY(-2px); }
+.card .ph { width: 34%; aspect-ratio: 1 / 1; flex-shrink: 0; }
+.card .info { flex: 1; padding: 24px 30px; display: flex; flex-direction: column; justify-content: center; gap: 8px; min-width: 0; }
+.card .no { font-family: var(--serif); font-size: .85rem; letter-spacing: .3em; color: var(--gold); }
+.card .nm { font-family: var(--serif); font-size: clamp(1.6rem, 5vw, 2.3rem); font-weight: 500; }
+.card .sb { font-size: .85rem; color: var(--muted); }
+.card .arrow { margin-top: 10px; font-size: .65rem; letter-spacing: .3em; color: var(--gold); opacity: .45; transition: opacity .3s; }
+.card:hover .arrow { opacity: 1; }
 .empty { text-align: center; color: var(--muted); padding: 60px 0; font-size: .85rem; }
+
+/* ───────── 캐릭터 상태창 ───────── */
+.panel {
+  position: fixed; inset: 0; z-index: 30; display: flex; align-items: center; justify-content: center;
+  padding: 20px; background: rgba(0,0,0,.85); backdrop-filter: blur(6px);
+  opacity: 0; visibility: hidden; transition: opacity .3s, visibility .3s;
+}
+.panel.open { opacity: 1; visibility: visible; }
+.dialog {
+  position: relative; width: 100%; max-width: 860px;
+  max-height: calc(100vh - 40px); max-height: calc(100dvh - 40px); overflow: auto;
+  background: var(--panel); border: 1px solid var(--gold);
+  transform: translateY(14px); transition: transform .35s ease;
+}
+.panel.open .dialog { transform: none; }
+.close {
+  position: absolute; top: 8px; right: 14px; z-index: 3; background: none; border: 0;
+  color: var(--text); font-size: 1.9rem; line-height: 1; cursor: pointer; opacity: .75;
+  text-shadow: 0 0 8px #000;
+}
+.close:hover { color: var(--gold); opacity: 1; }
+.content { display: grid; grid-template-columns: 42% 1fr; }
+.content .pic { min-height: 460px; }
+.side { padding: 44px 38px 38px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.side .tag { font-family: var(--serif); font-size: .7rem; letter-spacing: .45em; color: var(--gold); }
+.side .nm { font-family: var(--serif); font-size: clamp(2rem, 5vw, 2.8rem); font-weight: 500; line-height: 1.1; }
+.side .sb { font-size: .85rem; color: var(--muted); }
+.stats { margin-top: 6px; border-top: 1px solid var(--line); }
+.stats .row { display: flex; gap: 16px; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: .85rem; }
+.stats dt { width: 64px; flex-shrink: 0; color: var(--gold); letter-spacing: .1em; }
+.stats dd { color: var(--text); }
+.side .intro { font-size: .88rem; line-height: 1.9; color: #cfc9ba; white-space: pre-wrap; }
+.copybtn {
+  margin-top: auto; padding: 14px; background: transparent; border: 1px solid var(--gold);
+  color: var(--gold); font: inherit; font-size: .78rem; letter-spacing: .3em; cursor: pointer; transition: .25s;
+}
+.copybtn:hover, .copybtn.done { background: var(--gold); color: #0a0a0a; }
 
 /* 토스트 */
 #toast {
@@ -134,10 +150,12 @@ a { color: inherit; text-decoration: none; }
 }
 #toast.show { opacity: 1; transform: translate(-50%, 0); }
 
-@media (max-width: 560px) {
+@media (max-width: 640px) {
   #app { padding-top: 40px; }
-  .pair { flex-direction: column; }
-  .pair .ph { width: 100%; aspect-ratio: 16 / 10; }
-  .chars { grid-template-columns: 1fr; }
-  .char .ph { aspect-ratio: 4 / 5; }
+  .card { flex-direction: column; }
+  .card .ph { width: 100%; aspect-ratio: 4 / 3; }
+  .card .info { padding: 20px 22px 24px; }
+  .content { grid-template-columns: 1fr; }
+  .content .pic { min-height: 0; aspect-ratio: 4 / 5; }
+  .side { padding: 26px 24px 28px; }
 }
